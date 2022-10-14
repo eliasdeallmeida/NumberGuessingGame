@@ -1,129 +1,100 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
-#include <windows.h>
+#include <ctype.h>
 
 #define EASY_MODE 12
 #define NORMAL_MODE 8
 #define HARD_MODE 5
+#define MIN 1
+#define MAX 100
 
-#define NONE "\033[0m"
-#define COLOR_RED "\033[31m"
-#define COLOR_GREEN "\033[32m"
-#define COLOR_YELLOW "\033[33m"
-#define COLOR_BLUE "\033[34m"
+void clearScreen();
 
 int main(void){
-    int difficulty, totalAttempts, secretNumber, inputNumber;
-    int found = 0, min = 1, max = 100;
-    float lostPoints;
+    int difficulty, totalAttempts, secretNumber, inputNumber, repeated, *guesses, found;
+    float lostPoints, points;
     char reset;
 
-    for(int i = 0; i < 3; i++){
-        system("cls");
-        for(int j = 0; j < 3; j++){
-            printf(" . ");
-            fflush(stdout);
-            Sleep(200);
-        }
-    }
-
-    system("cls");
-    printf("\n%s", COLOR_BLUE);
-    printf("  _   _                 _                  _____                     _                _____                       \n");
-    printf(" | \\ | |               | |                / ____|                   (_)              / ____|                      \n");
-    printf(" |  \\| |_   _ _ __ ___ | |__   ___ _ __  | |  __ _   _  ___  ___ ___ _ _ __   __ _  | |  __  __ _ _ __ ___   ___  \n");
-    printf(" | . ` | | | | '_ ` _ \\| '_ \\ / _ \\ '__| | | |_ | | | |/ _ \\/ __/ __| | '_ \\ / _` | | | |_ |/ _` | '_ ` _ \\ / _ \\ \n");
-    printf(" | |\\  | |_| | | | | | | |_) |  __/ |    | |__| | |_| |  __/\\__ \\__ \\ | | | | (_| | | |__| | (_| | | | | | |  __/ \n");
-    printf(" |_| \\_|\\__,_|_| |_| |_|_.__/ \\___|_|     \\_____|\\__,_|\\___||___/___/_|_| |_|\\__, |  \\_____|\\__,_|_| |_| |_|\\___| \n");
-    printf("                                                                              __/ |                               \n");
-    printf("                                                                             |___/                                \n");
-    printf("%s", NONE);
-
-    sleep(1);
-    printf("\nWelcome! In this game you will need to find a randomly drawn number in the range from %d to %d. But calm down... You have a different amount of attempts for each difficulty. Therefore, the harder the game mode, the fewer attempts you will have. If you can get it right, I'll reveal your score. Are you able to find out the secret number?", min, max);
-
     while(1){
-        sleep(1);
-        printf("\n%s", COLOR_BLUE);
-        printf(" ______________________________________________ \n");
-        printf("|                                              |\n");
-        printf("|          Select the game difficulty          |\n");
-        printf("|    (1) Easy      (2) Normal      (3) Hard    |\n");
-        printf("| _____________________________________________|\n");
-        printf("|/%s\n", NONE);
+        printf(" __________________________________________ \n");
+        printf("|                                          |\n");
+        printf("|        Select the game difficulty        |\n");
+        printf("|   (1) Easy     (2) Normal     (3) Hard   |\n");
+        printf("| _________________________________________|\n");
+        printf("|/\n");
         printf("-> Your choice: ");
         scanf("%d", &difficulty);
 
         switch(difficulty){
-            case 1: totalAttempts = EASY_MODE; printf("%sEasy mode selected%s\n\n", COLOR_GREEN, NONE); break;
-            case 2: totalAttempts = NORMAL_MODE; printf("%sNormal mode selected%s\n\n", COLOR_YELLOW, NONE); break;
-            default: totalAttempts = HARD_MODE; printf("%sHard mode selected%s\n\n", COLOR_RED, NONE);
-        }
-
-        Sleep(500);
-        printf("You have %d attempts to find the secret number in the range from %d to %d", totalAttempts, min, max);
-
-        char message[12] = "\nGood luck!";
-        for(int i = 0; i < strlen(message); i++){
-            Sleep(100);
-            printf("%s%c%s", COLOR_GREEN, message[i], NONE);
-            fflush(stdout);
+            case 1:
+                totalAttempts = EASY_MODE;
+                printf("Easy mode selected\n\n");
+                break;
+            case 2:
+                totalAttempts = NORMAL_MODE;
+                printf("Normal mode selected\n\n");
+                break;
+            case 3:
+                totalAttempts = HARD_MODE;
+                printf("Hard mode selected\n\n");
+                break;
+            default:
+                clearScreen();
+                printf("ERROR: Invalid difficulty!\n\n");
+                continue;
         }
 
         srand(time(NULL));
-        secretNumber = (rand() % max) + min;
+        guesses = calloc(totalAttempts, sizeof(int));
+        secretNumber = rand() % MAX + MIN;
+        points = 100;
 
-        int guesses[totalAttempts];
-        float points = 100;
+        printf("You have %d attempts to find the secret number in the range from %d to %d\n\n", totalAttempts, MIN, MAX);
 
         for(int i = 1; i <= totalAttempts; i++){
-            sleep(1);
-            printf("\n\n");
-            printf("%s=== Attempt %d of %d ===%s\n", COLOR_BLUE, i, totalAttempts, NONE);
+            printf("=== Attempt %d of %d ===\n", i, totalAttempts);
             printf("-> Your guess: ");
             scanf("%d", &inputNumber);
             
-            if(inputNumber < min || inputNumber > max){
-                printf("%s* ERROR! | Input number is out of range! *%s", COLOR_RED, NONE);
+            if(inputNumber < MIN || inputNumber > MAX){
+                printf("ERROR: Input number is out of range!\n\n");
                 i--;
                 continue;
             }
 
-            int repeated = 0;
+            repeated = 0;
             for(int j = 1; j < i; j++){
                 if(inputNumber == guesses[j]){
-                    printf("%s* ERROR! You can't enter repeated numbers! *%s", COLOR_RED, NONE);
-                    repeated = 1;
+                    printf("ERROR: You can't enter repeated numbers!\n\n");
+                    repeated++;
                     break;
                 }
             }
-            if(repeated != 0){
+            if(repeated){
                 i--;
                 continue;
             }
 
             guesses[i] = inputNumber;
-            found = inputNumber == secretNumber;
+            found = (inputNumber == secretNumber);
 
             if(found || i == totalAttempts){
                 break;
             }else if(inputNumber > secretNumber){
-                printf("%sTry a lower number!%s", COLOR_YELLOW, NONE);
+                printf("Try a lower number!\n\n");
             }else{
-                printf("%sTry a higher number!%s", COLOR_YELLOW, NONE);
+                printf("Try a higher number!\n\n");
             }
 
-            lostPoints = abs(inputNumber - secretNumber) / 2.0;
-            points = points - lostPoints;
+            lostPoints = (float) abs(inputNumber - secretNumber) / 2;
+            points -= lostPoints;
         }
 
         if(found){
-            Sleep(500);
-            printf("\n%s_________________________________\n", COLOR_GREEN);
+            printf("\n_________________________________\n");
             printf("    CONGRATULATIONS! YOU WON!    \n");
-            printf("%s         ______________          \n", COLOR_YELLOW);
+            printf("         ______________          \n");
             printf("        '._==_==_=_.=_.'         \n");
             printf("        .-\\:         /-.        \n");
             printf("       / /|:.        |\\ \\      \n");
@@ -134,13 +105,12 @@ int main(void){
             printf("              )  (               \n");
             printf("           _.'    '._            \n");
             printf("          '----------'           \n");
-            printf("%s_________________________________%s\n", COLOR_GREEN, NONE);
-            printf("Total score: %.2f points.", points);
+            printf("_________________________________\n");
+            printf("Total score: %.2f points.\n", points);
         }else{
-            Sleep(500);
-            printf("\n%s_________________________________\n", COLOR_RED);
+            printf("\n_________________________________\n");
             printf("            YOU LOST!            \n");
-            printf("%s        ________________         \n", NONE);
+            printf("        ________________         \n");
             printf("      /                 \\       \n"); 
             printf("    /                     \\     \n");
             printf("   |                       |     \n");
@@ -152,34 +122,34 @@ int main(void){
             printf("       | I I I I I I I |         \n");
             printf("        \\_           _/         \n");
             printf("         \\___________/          \n");
-            printf("%s_________________________________%s\n", COLOR_RED, NONE);
-            printf("The secret number was %d.", secretNumber);
+            printf("_________________________________\n");
+            printf("The secret number was %d.\n\n", secretNumber);
         }
 
-        sleep(1);
-        printf("\n\n%s", COLOR_BLUE);
-        printf(" ________________________________________ \n");
-        printf("|                                        |\n");
-        printf("|    Do you want to play again? (Y/N)    |\n");
-        printf("| _______________________________________|\n");
-        printf("|/%s\n", NONE);
+        printf(" ______________________________________ \n");
+        printf("|                                      |\n");
+        printf("|   Do you want to play again? (Y/N)   |\n");
+        printf("| _____________________________________|\n");
+        printf("|/\n");
         printf("-> Your answer: ");
         scanf(" %c", &reset);
         
         reset = toupper(reset);
-        system("cls");
-        if(reset != 'Y'){
-            break;
-        }
+        clearScreen();
+        if(reset != 'Y') break;
     }
 
-    char message[25] = "Thank you for playing!";
-    for(int i = 0; i < strlen(message); i++){
-        printf("%s%c%s", COLOR_GREEN, message[i], NONE);
-        fflush(stdout);
-        Sleep(150);
-    }
-    printf("\n");
-    system("pause");
+    printf("\nThank you for playing!\n");
+
     return 0;
+}
+
+void clearScreen(){
+    #ifdef _WIN32
+        system("cls");
+    #elif _WIN64
+        system("cls");
+    #elif __linux__
+        system("clear");
+    #endif
 }
