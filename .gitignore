@@ -1,2 +1,2 @@
-# Ignore exe files
-*.exe
+*.o
+*.e

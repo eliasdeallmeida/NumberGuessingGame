@@ -1,16 +1,19 @@
-all: main
+all: game.e
 
-CC = clang
-override CFLAGS += -g -Wno-everything -pthread -lm
+game.e: main.o util.o features.o output.o
+	gcc -o game.e main.o util.o features.o output.o
 
-SRCS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.c' -print)
-HEADERS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.h' -print)
+main.o: main.c
+	gcc -o main.o -c main.c
 
-main: $(SRCS) $(HEADERS)
-	$(CC) $(CFLAGS) $(SRCS) -o "$@"
+util.o: util.c
+	gcc -o util.o -c util.c
 
-main-debug: $(SRCS) $(HEADERS)
-	$(CC) $(CFLAGS) -O0 $(SRCS) -o "$@"
+features.o: features.c
+	gcc -o features.o -c features.c
+
+output.o: output.c
+	gcc -o output.o -c output.c
 
 clean:
-	rm -f main main-debug
+	rm -f *.o game.e
