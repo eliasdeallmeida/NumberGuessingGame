@@ -2,6 +2,7 @@
 #define FEATURES_HEADER
 
 #include <stdio.h>
+#include <ctype.h>
 #include "util.h"
 #include "output.h"
 

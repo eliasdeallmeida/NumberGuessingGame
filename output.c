@@ -1,15 +1,7 @@
 #include "output.h"
 
-void showRestartMessage(){
-    printf(" ______________________________________ \n");
-    printf("|                                      |\n");
-    printf("|   Do you want to play again? (Y/N)   |\n");
-    printf("| _____________________________________|\n");
-    printf("|/\n");
-}
-
 void showMenuDifficulty(){
-    printf(" __________________________________________ \n");
+    printf("\n __________________________________________ \n");
     printf("|                                          |\n");
     printf("|        Select the game difficulty        |\n");
     printf("|   (1) Easy     (2) Normal     (3) Hard   |\n");
@@ -50,4 +42,12 @@ void showDefeatMessage(){
     printf("        \\_           _/         \n");
     printf("         \\___________/          \n");
     printf("_________________________________\n");
+}
+
+void showRestartMessage(){
+    printf("\n ______________________________________ \n");
+    printf("|                                      |\n");
+    printf("|   Do you want to play again? (Y/N)   |\n");
+    printf("| _____________________________________|\n");
+    printf("|/\n");
 }
